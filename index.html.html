@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>VA Job Application</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+  :root {
+    --navy: #0d1b2a;
+    --navy2: #1b2d42;
+    --gold: #c9952a;
+    --gold-light: #f0c060;
+    --cream: #fdf8f0;
+    --white: #ffffff;
+    --border: #e4ddd0;
+    --text: #1a1a1a;
+    --muted: #6b6b6b;
+    --error: #c0392b;
+    --success: #1e7e4a;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(160deg, var(--navy) 0%, var(--navy2) 100%);
+    padding: 36px 24px 32px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(201,149,42,0.12);
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: -40px;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: rgba(201,149,42,0.08);
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(201,149,42,0.18);
+    border: 1px solid rgba(201,149,42,0.35);
+    color: var(--gold-light);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 40px;
+    margin-bottom: 14px;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 5vw, 32px);
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .header p {
+    color: rgba(255,255,255,0.55);
+    font-size: 13px;
+    line-height: 1.6;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  /* ── Progress ── */
+  .progress-wrap {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .steps {
+    display: flex;
+    gap: 6px;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+  .step-item {
+    flex: 1;
+  }
+  .step-bar {
+    height: 4px;
+    border-radius: 4px;
+    background: var(--border);
+    margin-bottom: 5px;
+    transition: background 0.35s ease;
+  }
+  .step-bar.active { background: var(--gold); }
+  .step-bar.done { background: var(--navy); }
+  .step-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #bbb;
+    transition: color 0.3s;
+    white-space: nowrap;
+  }
+  .step-label.active { color: var(--gold); }
+  .step-label.done { color: var(--navy); }
+
+  /* ── Form body ── */
+  .form-body {
+    max-width: 540px;
+    margin: 0 auto;
+    padding: 28px 16px 48px;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 22px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ── Field ── */
+  .field { margin-bottom: 20px; }
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--navy);
+    margin-bottom: 7px;
+  }
+  .field label .req { color: var(--error); margin-left: 2px; }
+  .field .hint {
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-top: 5px;
+    font-style: italic;
+  }
+  .field .err-msg {
+    font-size: 11.5px;
+    color: var(--error);
+    margin-top: 4px;
+    font-weight: 600;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="url"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14.5px;
+    color: var(--text);
+    outline: none;
+    transition: border 0.2s, box-shadow 0.2s;
+    appearance: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(201,149,42,0.12);
+  }
+  input.has-error, select.has-error, textarea.has-error {
+    border-color: var(--error);
+  }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+  textarea { min-height: 90px; resize: vertical; line-height: 1.5; }
+
+  /* ── Radio cards ── */
+  .radio-group { display: flex; flex-direction: column; gap: 8px; }
+  .radio-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    background: var(--white);
+    transition: all 0.15s;
+  }
+  .radio-card:hover { border-color: var(--gold); background: #fdf5e6; }
+  .radio-card.selected { border-color: var(--gold); background: #fdf5e6; }
+  .radio-card.error-border { border-color: var(--error); }
+  .radio-card input[type="radio"] {
+    width: auto; padding: 0; border: none; background: none;
+    box-shadow: none; margin-top: 2px; flex-shrink: 0;
+    accent-color: var(--gold);
+  }
+  .radio-card span {
+    font-size: 13.5px;
+    line-height: 1.45;
+    color: var(--text);
+  }
+
+  /* ── Two-col layout ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 420px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* ── Navigation ── */
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 28px;
+    gap: 12px;
+  }
+  .btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 12px 28px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-back {
+    background: transparent;
+    border: 1.5px solid var(--border);
+    color: var(--muted);
+  }
+  .btn-back:hover { border-color: var(--navy); color: var(--navy); }
+  .btn-next {
+    background: var(--navy);
+    color: var(--white);
+    box-shadow: 0 4px 14px rgba(13,27,42,0.3);
+  }
+  .btn-next:hover { background: var(--navy2); transform: translateY(-1px); }
+  .btn-submit {
+    background: linear-gradient(135deg, var(--gold), #b8840e);
+    color: var(--white);
+    box-shadow: 0 4px 16px rgba(201,149,42,0.4);
+  }
+  .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(201,149,42,0.5); }
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+
+  /* ── Sending overlay ── */
+  .sending-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(13,27,42,0.7);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .sending-overlay.show { display: flex; }
+  .spinner {
+    width: 44px; height: 44px;
+    border: 4px solid rgba(255,255,255,0.2);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .sending-overlay p { color: #fff; font-weight: 600; font-size: 15px; }
+
+  /* ── Success ── */
+  .success-screen {
+    display: none;
+    text-align: center;
+    padding: 48px 24px;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+  .success-screen.show { display: block; }
+  .success-icon {
+    width: 72px; height: 72px;
+    background: linear-gradient(135deg, #1e7e4a, #27ae60);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 32px;
+    box-shadow: 0 8px 24px rgba(39,174,96,0.3);
+  }
+  .success-screen h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    color: var(--navy);
+    margin-bottom: 10px;
+  }
+  .success-screen p { color: var(--muted); font-size: 14px; line-height: 1.6; }
+  .success-name { color: var(--navy); font-weight: 700; }
+
+  /* ── Page visibility ── */
+  .page { display: none; }
+  .page.active { display: block; animation: fadeUp 0.3s ease; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Step counter ── */
+  .step-counter {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 16px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Sending overlay -->
+<div class="sending-overlay" id="sendingOverlay">
+  <div class="spinner"></div>
+  <p>Submitting your application…</p>
+</div>
+
+<!-- Header -->
+<div class="header">
+  <div class="badge">🏠 Now Hiring · Remote VA Roles</div>
+  <h1>Virtual Assistant<br>Job Application</h1>
+  <p>Cold Calling · Admin · Transaction Coordination<br>Strong English required · Work from anywhere</p>
+</div>
+
+<!-- Progress -->
+<div class="progress-wrap">
+  <div class="steps">
+    <div class="step-item">
+      <div class="step-bar active" id="bar0"></div>
+      <div class="step-label active" id="lbl0">Personal</div>
+    </div>
+    <div class="step-item">
+      <div class="step-bar" id="bar1"></div>
+      <div class="step-label" id="lbl1">Experience</div>
+    </div>
+    <div class="step-item">
+      <div class="step-bar" id="bar2"></div>
+      <div class="step-label" id="lbl2">Role & Rate</div>
+    </div>
+    <div class="step-item">
+      <div class="step-bar" id="bar3"></div>
+      <div class="step-label" id="lbl3">Media</div>
+    </div>
+  </div>
+</div>
+
+<div class="form-body">
+
+  <!-- ── PAGE 0: Personal ── -->
+  <div class="page active" id="page0">
+    <div class="section-title">👤 Personal Information</div>
+
+    <div class="two-col">
+      <div class="field">
+        <label>Full Name <span class="req">*</span></label>
+        <input type="text" id="fullName" placeholder="Your full name"/>
+        <div class="err-msg" id="err_fullName"></div>
+      </div>
+      <div class="field">
+        <label>WhatsApp Number <span class="req">*</span></label>
+        <input type="tel" id="whatsapp" placeholder="+1 555 000 0000"/>
+        <div class="err-msg" id="err_whatsapp"></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Email Address <span class="req">*</span></label>
+      <input type="email" id="email" placeholder="you@email.com"/>
+      <div class="err-msg" id="err_email"></div>
+    </div>
+
+    <div class="two-col">
+      <div class="field">
+        <label>Location (City, Country) <span class="req">*</span></label>
+        <input type="text" id="location" placeholder="Manila, Philippines"/>
+        <div class="err-msg" id="err_location"></div>
+      </div>
+      <div class="field">
+        <label>Your Timezone <span class="req">*</span></label>
+        <input type="text" id="timezone" placeholder="e.g. PST, UTC+8"/>
+        <div class="err-msg" id="err_timezone"></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>English Proficiency <span class="req">*</span></label>
+      <select id="englishLevel">
+        <option value="">Select level…</option>
+        <option value="Native / Near-Native">Native / Near-Native</option>
+        <option value="Fluent">Fluent</option>
+        <option value="Conversational">Conversational</option>
+        <option value="Basic">Basic</option>
+      </select>
+      <div class="err-msg" id="err_englishLevel"></div>
+    </div>
+
+    <div class="nav-row">
+      <div></div>
+      <button class="btn btn-next" onclick="goNext(0)">Next →</button>
+    </div>
+  </div>
+
+  <!-- ── PAGE 1: Experience ── -->
+  <div class="page" id="page1">
+    <div class="section-title">💼 Your Experience</div>
+
+    <div class="field">
+      <label>Years of VA / Remote Work Experience <span class="req">*</span></label>
+      <div class="radio-group" id="rg_yearsExp">
+        <label class="radio-card"><input type="radio" name="yearsExp" value="No experience yet"/><span>No experience yet</span></label>
+        <label class="radio-card"><input type="radio" name="yearsExp" value="Less than 1 year"/><span>Less than 1 year</span></label>
+        <label class="radio-card"><input type="radio" name="yearsExp" value="1–2 years"/><span>1–2 years</span></label>
+        <label class="radio-card"><input type="radio" name="yearsExp" value="3–5 years"/><span>3–5 years</span></label>
+        <label class="radio-card"><input type="radio" name="yearsExp" value="5+ years"/><span>5+ years</span></label>
+      </div>
+      <div class="err-msg" id="err_yearsExp"></div>
+    </div>
+
+    <div class="field">
+      <label>Cold Calling / ISA Experience <span class="req">*</span></label>
+      <div class="radio-group" id="rg_coldExp">
+        <label class="radio-card"><input type="radio" name="coldExp" value="None"/><span>None</span></label>
+        <label class="radio-card"><input type="radio" name="coldExp" value="Some (under 6 months)"/><span>Some (under 6 months)</span></label>
+        <label class="radio-card"><input type="radio" name="coldExp" value="Experienced (6 months – 2 years)"/><span>Experienced (6 months – 2 years)</span></label>
+        <label class="radio-card"><input type="radio" name="coldExp" value="Expert (2+ years, real estate preferred)"/><span>Expert (2+ years, real estate preferred)</span></label>
+      </div>
+      <div class="err-msg" id="err_coldExp"></div>
+    </div>
+
+    <div class="field">
+      <label>Admin / Operations Experience <span class="req">*</span></label>
+      <div class="radio-group" id="rg_adminExp">
+        <label class="radio-card"><input type="radio" name="adminExp" value="None"/><span>None</span></label>
+        <label class="radio-card"><input type="radio" name="adminExp" value="Basic (email, scheduling, data entry)"/><span>Basic (email, scheduling, data entry)</span></label>
+        <label class="radio-card"><input type="radio" name="adminExp" value="Strong (systems, reporting, team support)"/><span>Strong (systems, reporting, team support)</span></label>
+        <label class="radio-card"><input type="radio" name="adminExp" value="Expert (led admin ops, multiple clients)"/><span>Expert (led admin ops, multiple clients)</span></label>
+      </div>
+      <div class="err-msg" id="err_adminExp"></div>
+    </div>
+
+    <div class="field">
+      <label>Transaction Coordination (TC) Experience <span class="req">*</span></label>
+      <div class="radio-group" id="rg_tcExp">
+        <label class="radio-card"><input type="radio" name="tcExp" value="None"/><span>None</span></label>
+        <label class="radio-card"><input type="radio" name="tcExp" value="Learning / in training"/><span>Learning / in training</span></label>
+        <label class="radio-card"><input type="radio" name="tcExp" value="Some experience (assisted a TC)"/><span>Some experience (assisted a TC)</span></label>
+        <label class="radio-card"><input type="radio" name="tcExp" value="Experienced (handled transactions independently)"/><span>Experienced (handled transactions independently)</span></label>
+      </div>
+      <div class="err-msg" id="err_tcExp"></div>
+    </div>
+
+    <div class="two-col">
+      <div class="field">
+        <label>CRM Tools Used</label>
+        <input type="text" id="crmTools" placeholder="Follow Up Boss, HubSpot…"/>
+      </div>
+      <div class="field">
+        <label>Dialer Tools Used</label>
+        <input type="text" id="dialerTools" placeholder="Mojo, BatchDialer, REDX…"/>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-back" onclick="goBack(1)">← Back</button>
+      <button class="btn btn-next" onclick="goNext(1)">Next →</button>
+    </div>
+  </div>
+
+  <!-- ── PAGE 2: Role & Rate ── -->
+  <div class="page" id="page2">
+    <div class="section-title">⚡ Role, Availability & Rate</div>
+
+    <div class="field">
+      <label>Which role fits you best? <span class="req">*</span></label>
+      <div class="radio-group" id="rg_topRole">
+        <label class="radio-card"><input type="radio" name="topRole" value="Cold Caller / ISA"/><span><strong>Cold Caller / ISA</strong> — Requires strong English & phone skills; fewer applicants approved</span></label>
+        <label class="radio-card"><input type="radio" name="topRole" value="Admin VA"/><span><strong>Admin VA</strong> — Requires strong organizational & computer skills with prior experience</span></label>
+        <label class="radio-card"><input type="radio" name="topRole" value="Transaction Coordinator (TC)"/><span><strong>Transaction Coordinator</strong> — Requires attention to detail & real estate knowledge</span></label>
+        <label class="radio-card"><input type="radio" name="topRole" value="Open to any role"/><span><strong>Open to any role</strong> — Let us place you where you fit best</span></label>
+      </div>
+      <div class="err-msg" id="err_topRole"></div>
+    </div>
+
+    <div class="field">
+      <label>Weekly Availability <span class="req">*</span></label>
+      <div class="radio-group" id="rg_availability">
+        <label class="radio-card"><input type="radio" name="availability" value="Part-time (under 20 hrs/week)"/><span>Part-time (under 20 hrs/week)</span></label>
+        <label class="radio-card"><input type="radio" name="availability" value="Full-time (40 hrs/week)"/><span>Full-time (40 hrs/week)</span></label>
+        <label class="radio-card"><input type="radio" name="availability" value="Flexible – depends on workload"/><span>Flexible – depends on workload</span></label>
+      </div>
+      <div class="err-msg" id="err_availability"></div>
+    </div>
+
+    <div class="field">
+      <label>Expected Hourly Rate (USD) <span class="req">*</span></label>
+      <input type="text" id="hourlyRate" placeholder="e.g. $5/hr, $8/hr"/>
+      <div class="err-msg" id="err_hourlyRate"></div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-back" onclick="goBack(2)">← Back</button>
+      <button class="btn btn-next" onclick="goNext(2)">Next →</button>
+    </div>
+  </div>
+
+  <!-- ── PAGE 3: Media ── -->
+  <div class="page" id="page3">
+    <div class="section-title">🎙️ Media & Final Details</div>
+
+    <div class="field">
+      <label>Self-Intro Audio Recording Link <span class="req">*</span></label>
+      <input type="url" id="audioLink" placeholder="Vocaroo or Speakpipe link"/>
+      <div class="hint">30 sec – 2 min. Cover: your name, experience, and key skills.</div>
+      <div class="err-msg" id="err_audioLink"></div>
+    </div>
+
+    <div class="field">
+      <label>Headshot / Profile Photo URL</label>
+      <input type="url" id="headshotUrl" placeholder="Link to photo (LinkedIn, Google Drive…)"/>
+    </div>
+
+    <div class="field">
+      <label>How Did You Find Us? <span class="req">*</span></label>
+      <input type="text" id="howFound" placeholder="Facebook, referral, job board…"/>
+      <div class="err-msg" id="err_howFound"></div>
+    </div>
+
+    <div class="field">
+      <label>Anything else you'd like us to know?</label>
+      <textarea id="notes" placeholder="Optional – share anything relevant about yourself…"></textarea>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-back" onclick="goBack(3)">← Back</button>
+      <button class="btn btn-submit" id="submitBtn" onclick="handleSubmit()">Submit Application ✓</button>
+    </div>
+  </div>
+
+  <!-- ── SUCCESS ── -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon">✓</div>
+    <h2>Application Received!</h2>
+    <p>Thank you, <span class="success-name" id="successName"></span>! We've received your application and will review it shortly. Expect to hear from us via email or WhatsApp.</p>
+  </div>
+
+  <div class="step-counter" id="stepCounter">Step 1 of 4 · Fields marked * are required</div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// ★ CONFIGURE THESE THREE VALUES
+// ─────────────────────────────────────────────
+const EMAILJS_PUBLIC_KEY  = "1YH41oSxoQBQCIjHS";       // from EmailJS dashboard
+const EMAILJS_SERVICE_ID  = "service_2r5cxib";       // e.g. "service_abc123"
+const EMAILJS_TEMPLATE_ID = "template_soz6srr";      // e.g. "template_xyz789"
+// ─────────────────────────────────────────────
+
+emailjs.init(EMAILJS_PUBLIC_KEY);
+
+let currentStep = 0;
+
+// ── Radio card highlight ──
+document.querySelectorAll('.radio-card input[type="radio"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    const group = radio.closest('.radio-group');
+    group.querySelectorAll('.radio-card').forEach(c => c.classList.remove('selected'));
+    radio.closest('.radio-card').classList.add('selected');
+  });
+});
+
+// ── Helpers ──
+function val(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+function radioVal(name) {
+  const checked = document.querySelector(`input[name="${name}"]:checked`);
+  return checked ? checked.value : '';
+}
+function setError(id, msg) {
+  const el = document.getElementById('err_' + id);
+  const inp = document.getElementById(id);
+  if (el) el.textContent = msg;
+  if (inp) { msg ? inp.classList.add('has-error') : inp.classList.remove('has-error'); }
+}
+function setRadioError(name, rgId, msg) {
+  const el = document.getElementById('err_' + name);
+  if (el) el.textContent = msg;
+  const rg = document.getElementById(rgId);
+  if (rg) rg.querySelectorAll('.radio-card').forEach(c => {
+    msg ? c.classList.add('error-border') : c.classList.remove('error-border');
+  });
+}
+function clearErrors() {
+  document.querySelectorAll('.err-msg').forEach(e => e.textContent = '');
+  document.querySelectorAll('.has-error').forEach(e => e.classList.remove('has-error'));
+  document.querySelectorAll('.error-border').forEach(e => e.classList.remove('error-border'));
+}
+
+// ── Validation per step ──
+function validateStep(step) {
+  clearErrors();
+  let ok = true;
+  if (step === 0) {
+    if (!val('fullName'))   { setError('fullName', 'Required'); ok=false; }
+    if (!val('email') || !/\S+@\S+\.\S+/.test(val('email'))) { setError('email','Valid email required'); ok=false; }
+    if (!val('whatsapp'))   { setError('whatsapp','Required'); ok=false; }
+    if (!val('location'))   { setError('location','Required'); ok=false; }
+    if (!val('timezone'))   { setError('timezone','Required'); ok=false; }
+    if (!val('englishLevel')) { setError('englishLevel','Required'); ok=false; }
+  }
+  if (step === 1) {
+    if (!radioVal('yearsExp'))  { setRadioError('yearsExp','rg_yearsExp','Please select one'); ok=false; }
+    if (!radioVal('coldExp'))   { setRadioError('coldExp','rg_coldExp','Please select one'); ok=false; }
+    if (!radioVal('adminExp'))  { setRadioError('adminExp','rg_adminExp','Please select one'); ok=false; }
+    if (!radioVal('tcExp'))     { setRadioError('tcExp','rg_tcExp','Please select one'); ok=false; }
+  }
+  if (step === 2) {
+    if (!radioVal('topRole'))      { setRadioError('topRole','rg_topRole','Please select one'); ok=false; }
+    if (!radioVal('availability')) { setRadioError('availability','rg_availability','Please select one'); ok=false; }
+    if (!val('hourlyRate'))        { setError('hourlyRate','Required'); ok=false; }
+  }
+  if (step === 3) {
+    if (!val('audioLink'))  { setError('audioLink','Required'); ok=false; }
+    if (!val('howFound'))   { setError('howFound','Required'); ok=false; }
+  }
+  return ok;
+}
+
+// ── Navigation ──
+function goNext(from) {
+  if (!validateStep(from)) return;
+  setStep(from + 1);
+}
+function goBack(from) {
+  setStep(from - 1);
+}
+function setStep(n) {
+  document.getElementById('page' + currentStep).classList.remove('active');
+  currentStep = n;
+  document.getElementById('page' + currentStep).classList.add('active');
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function updateProgress() {
+  for (let i = 0; i < 4; i++) {
+    const bar = document.getElementById('bar' + i);
+    const lbl = document.getElementById('lbl' + i);
+    bar.className = 'step-bar' + (i < currentStep ? ' done' : i === currentStep ? ' active' : '');
+    lbl.className = 'step-label' + (i < currentStep ? ' done' : i === currentStep ? ' active' : '');
+  }
+  const counter = document.getElementById('stepCounter');
+  if (counter) counter.textContent = `Step ${currentStep+1} of 4 · Fields marked * are required`;
+}
+
+// ── Submit ──
+async function handleSubmit() {
+  if (!validateStep(3)) return;
+
+  document.getElementById('sendingOverlay').classList.add('show');
+  document.getElementById('submitBtn').disabled = true;
+
+  const params = {
+    full_name:    val('fullName'),
+    email:        val('email'),
+    whatsapp:     val('whatsapp'),
+    location:     val('location'),
+    timezone:     val('timezone'),
+    english:      val('englishLevel'),
+    years_exp:    radioVal('yearsExp'),
+    cold_exp:     radioVal('coldExp'),
+    admin_exp:    radioVal('adminExp'),
+    tc_exp:       radioVal('tcExp'),
+    crm_tools:    val('crmTools') || 'N/A',
+    dialer_tools: val('dialerTools') || 'N/A',
+    top_role:     radioVal('topRole'),
+    availability: radioVal('availability'),
+    hourly_rate:  val('hourlyRate'),
+    audio_link:   val('audioLink'),
+    headshot_url: val('headshotUrl') || 'Not provided',
+    how_found:    val('howFound'),
+    notes:        val('notes') || 'None',
+  };
+
+  try {
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params);
+    document.getElementById('sendingOverlay').classList.remove('show');
+    // Hide all pages + counter
+    document.getElementById('page3').classList.remove('active');
+    document.getElementById('stepCounter').style.display = 'none';
+    // Update progress to all done
+    for (let i=0; i<4; i++) {
+      document.getElementById('bar'+i).className = 'step-bar done';
+      document.getElementById('lbl'+i).className = 'step-label done';
+    }
+    // Show success
+    document.getElementById('successName').textContent = val('fullName');
+    document.getElementById('successScreen').classList.add('show');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch (err) {
+    document.getElementById('sendingOverlay').classList.remove('show');
+    document.getElementById('submitBtn').disabled = false;
+    alert('There was an error submitting your application. Please try again or contact us directly.');
+    console.error('EmailJS error:', err);
+  }
+}
+</script>
+</body>
+</html>
