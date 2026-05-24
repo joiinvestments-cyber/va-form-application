@@ -542,9 +542,9 @@
     <div class="section-title">🎙️ Media & Final Details</div>
 
     <div class="field">
-      <label>Self-Intro Audio Recording Link <span class="req">*</span></label>
-      <input type="url" id="audioLink" placeholder="Vocaroo or Speakpipe link"/>
-      <div class="hint">30 sec – 2 min. Cover: your name, experience, and key skills.</div>
+      <label>Self-Intro Audio Recording Link</label>
+      <input type="text" id="audioLink" placeholder="Paste Vocaroo/Speakpipe link — or type N/A"/>
+      <div class="hint">30 sec – 2 min covering your name, experience & skills. No recording? Just type <strong>N/A</strong>.</div>
       <div class="err-msg" id="err_audioLink"></div>
     </div>
 
@@ -655,7 +655,7 @@ function validateStep(step) {
     if (!val('hourlyRate'))        { setError('hourlyRate','Required'); ok=false; }
   }
   if (step === 3) {
-    if (!val('audioLink'))  { setError('audioLink','Required'); ok=false; }
+    
     if (!val('howFound'))   { setError('howFound','Required'); ok=false; }
   }
   return ok;
